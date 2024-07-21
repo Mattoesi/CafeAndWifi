@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Cafe & Wifi API{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="text-center">Existing Cafes</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Seats</th>
+                <th>Has Toilet</th>
+                <th>Has Wifi</th>
+                <th>Has Sockets</th>
+                <th>Can Take Calls</th>
+                <th>Coffee Price</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cafe in cafes %}
+            <tr>
+                <td>{{ cafe.name }}</td>
+                <td>{{ cafe.location }}</td>
+                <td>{{ cafe.seats }}</td>
+                <td>{{ cafe.has_toilet }}</td>
+                <td>{{ cafe.has_wifi }}</td>
+                <td>{{ cafe.has_sockets }}</td>
+                <td>{{ cafe.can_take_calls }}</td>
+                <td>{{ cafe.coffee_price }}</td>
+                <td><img src="{{ url_for('serve_image', cafe_id=cafe.id) }}" alt="Cafe Image" style="width:100px;height:100px;object-fit:cover;"></td>
+                <td class="d-flex align-items-center">
+                    <button type="button" class="btn btn-info btn-sm mr-2" data-toggle="modal" data-target="#viewCafeModal{{ cafe.id }}">View</button>
+                    <a href="{{ url_for('show_modify_cafe', cafe_id=cafe.id) }}" class="btn btn-warning btn-sm mr-2">Modify</a>
+                    <form action="/delete/{{ cafe.id }}" method="post" class="delete-form d-inline">
+                        <input type="hidden" name="api-key" value="{{ api_key }}">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                    <!-- View Cafe Modal -->
+                    <div class="modal fade" id="viewCafeModal{{ cafe.id }}" tabindex="-1" role="dialog" aria-labelledby="viewCafeModalLabel{{ cafe.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="viewCafeModalLabel{{ cafe.id }}">Cafe Details</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h4>{{ cafe.name }}</h4>
+                                            <p><strong>Location:</strong> {{ cafe.location }}</p>
+                                            <p><strong>Seats:</strong> {{ cafe.seats }}</p>
+                                            <p><strong>Has Toilet:</strong> {{ cafe.has_toilet }}</p>
+                                            <p><strong>Has Wifi:</strong> {{ cafe.has_wifi }}</p>
+                                            <p><strong>Has Sockets:</strong> {{ cafe.has_sockets }}</p>
+                                            <p><strong>Can Take Calls:</strong> {{ cafe.can_take_calls }}</p>
+                                            <p><strong>Coffee Price:</strong> {{ cafe.coffee_price }}</p>
+                                            <div id="map{{ cafe.id }}" class="map-container" style="height: 300px;"></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <img src="{{ url_for('serve_image', cafe_id=cafe.id) }}" alt="Cafe Image" style="width:100%;height:auto;object-fit:cover;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function initModalMaps() {
+        {% for cafe in cafes %}
+        var mapId = 'map{{ cafe.id }}';
+        var map{{ cafe.id }} = L.map(mapId).setView([48.8566, 2.3522], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map{{ cafe.id }});
+
+        var geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent('{{ cafe.location }}')}`;
+
+        fetch(geocodeUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    var latlng = [data[0].lat, data[0].lon];
+                    map{{ cafe.id }}.setView(latlng, 13);
+                    L.marker(latlng).addTo(map{{ cafe.id }});
+                }
+            });
+
+        $('#viewCafeModal{{ cafe.id }}').on('shown.bs.modal', function () {
+            map{{ cafe.id }}.invalidateSize();
+        });
+        {% endfor %}
+    }
+
+    $(document).ready(function() {
+        initModalMaps();
+    });
+</script>
+{% endblock %}

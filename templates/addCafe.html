@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Add Cafe{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="text-center">Add a New Cafe</h2>
+    <div class="form-container">
+        <form action="/add" method="post" class="needs-validation form-section" novalidate>
+            <div class="form-group">
+                <label for="name">Cafe Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+                <div class="invalid-feedback">Please enter a cafe name.</div>
+            </div>
+            <div class="form-group">
+                <label for="map_url">Map URL:</label>
+                <input type="text" class="form-control" id="map_url" name="map_url" required>
+                <div class="invalid-feedback">Please enter a map URL.</div>
+            </div>
+            <div class="form-group">
+                <label for="img_url">Image URL:</label>
+                <input type="text" class="form-control" id="img_url" name="img_url" required>
+                <div class="invalid-feedback">Please enter an image URL.</div>
+            </div>
+            <div class="form-group">
+                <label for="loc">Location:</label>
+                <input type="text" class="form-control" id="loc" name="loc" required>
+                <div class="invalid-feedback">Please enter a location.</div>
+            </div>
+            <div class="form-group">
+                <label for="seats">Number of Seats:</label>
+                <input type="text" class="form-control" id="seats" name="seats" required>
+                <div class="invalid-feedback">Please enter the number of seats.</div>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="toilet" name="toilet">
+                <label class="form-check-label" for="toilet">Has Toilet</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="wifi" name="wifi">
+                <label class="form-check-label" for="wifi">Has Wifi</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="sockets" name="sockets">
+                <label class="form-check-label" for="sockets">Has Sockets</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="calls" name="calls">
+                <label class="form-check-label" for="calls">Can Take Calls</label>
+            </div>
+            <div class="form-group">
+                <label for="coffee_price">Coffee Price:</label>
+                <input type="text" class="form-control" id="coffee_price" name="coffee_price">
+                <div class="invalid-feedback">Please enter the coffee price.</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Add Cafe</button>
+        </form>
+        <div class="map-section">
+            <div id="map"></div>
+            <img id="cafeImage" src="" alt="Cafe Image" style="width:100%;height:300px;margin-top:10px;object-fit:cover;">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var map;
+    function initMap() {
+        map = L.map('map').setView([48.8566, 2.3522], 13); // Default to Paris coordinates
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    }
+
+    function updateMap() {
+        var address = document.getElementById('loc').value;
+        var geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+
+        fetch(geocodeUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    var latlng = [data[0].lat, data[0].lon];
+                    map.setView(latlng, 13);
+                    L.marker(latlng).addTo(map);
+                }
+            });
+    }
+
+    function updateImage() {
+        var imgUrl = document.getElementById('img_url').value;
+        document.getElementById('cafeImage').src = imgUrl;
+    }
+
+    document.getElementById('img_url').addEventListener('input', updateImage);
+    document.getElementById('loc').addEventListener('input', updateMap);
+
+    window.onload = initMap;
+</script>
+{% endblock %}

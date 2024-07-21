@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Modify Cafe{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="text-center">Modify Cafe</h2>
+    <div class="form-container">
+        <form action="{{ url_for('modify_cafe', cafe_id=cafe.id) }}" method="post" class="needs-validation form-section" novalidate>
+            <input type="hidden" name="api-key" value="{{ api_key }}">
+            <div class="form-group">
+                <label for="name">Cafe Name:</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ cafe.name }}" required>
+                <div class="invalid-feedback">Please enter a cafe name.</div>
+            </div>
+            <div class="form-group">
+                <label for="map_url">Map URL:</label>
+                <input type="text" class="form-control" id="map_url" name="map_url" value="{{ cafe.map_url }}" required>
+                <div class="invalid-feedback">Please enter a map URL.</div>
+            </div>
+            <div class="form-group">
+                <label for="img_url">Image URL:</label>
+                <input type="text" class="form-control" id="img_url" name="img_url" value="" placeholder="Leave blank to keep current image">
+                <div class="invalid-feedback">Please enter an image URL.</div>
+            </div>
+            <div class="form-group">
+                <label for="loc">Location:</label>
+                <input type="text" class="form-control" id="loc" name="loc" value="{{ cafe.location }}" required>
+                <div class="invalid-feedback">Please enter a location.</div>
+            </div>
+            <div class="form-group">
+                <label for="seats">Number of Seats:</label>
+                <input type="text" class="form-control" id="seats" name="seats" value="{{ cafe.seats }}" required>
+                <div class="invalid-feedback">Please enter the number of seats.</div>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="toilet" name="toilet" {% if cafe.has_toilet %}checked{% endif %}>
+                <label class="form-check-label" for="toilet">Has Toilet</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="wifi" name="wifi" {% if cafe.has_wifi %}checked{% endif %}>
+                <label class="form-check-label" for="wifi">Has Wifi</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="sockets" name="sockets" {% if cafe.has_sockets %}checked{% endif %}>
+                <label class="form-check-label" for="sockets">Has Sockets</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="calls" name="calls" {% if cafe.can_take_calls %}checked{% endif %}>
+                <label class="form-check-label" for="calls">Can Take Calls</label>
+            </div>
+            <div class="form-group">
+                <label for="coffee_price">Coffee Price:</label>
+                <input type="text" class="form-control" id="coffee_price" name="coffee_price" value="{{ cafe.coffee_price }}">
+                <div class="invalid-feedback">Please enter the coffee price.</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Modify Cafe</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
